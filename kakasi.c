@@ -28,16 +28,16 @@ rb_kakasi_kakasi(obj, opt, src)
     Check_Type(src, T_STRING);
 
     /* return "" immediately if source str is empty */
-    if (RSTRING(src)->len == 0)
+    if (RSTRING_LEN(src) == 0)
 	return rb_str_new2("");
 
     Check_Type(opt, T_STRING);
 
      /* initialize kakasi iff opt != previous opt */
-    if (0 == len || 0 != strncmp(RSTRING(opt)->ptr, prev_opt_ptr, 
-				 min(RSTRING(opt)->len, len))) {
-	strncpy(prev_opt_ptr, RSTRING(opt)->ptr, RSTRING(opt)->len);
-	len = RSTRING(opt)->len; 
+    if (0 == len || 0 != strncmp(RSTRING_PTR(opt), prev_opt_ptr, 
+				 min(RSTRING_LEN(opt), len))) {
+	strncpy(prev_opt_ptr, RSTRING_PTR(opt), RSTRING_LEN(opt));
+	len = RSTRING_LEN(opt); 
 
 	if (len + 1 > OPTMAX) {
 	    rb_raise(rb_eArgError, "too long 1st arg (should be < 1023)");
@@ -48,13 +48,13 @@ rb_kakasi_kakasi(obj, opt, src)
 	    dic_closed = 1;
 	}
 
-	argv = opts = ALLOCA_N(char*, RSTRING(opt)->len);
+	argv = opts = ALLOCA_N(char*, RSTRING_LEN(opt));
 	*opts++ = "kakasi";
 	argc++;
 
-	opt_ptr = ALLOCA_N(char, 1 + RSTRING(opt)->len);
-	strncpy(opt_ptr, RSTRING(opt)->ptr, RSTRING(opt)->len);
-	opt_ptr[RSTRING(opt)->len] = '\0';
+	opt_ptr = ALLOCA_N(char, 1 + RSTRING_LEN(opt));
+	strncpy(opt_ptr, RSTRING_PTR(opt), RSTRING_LEN(opt));
+	opt_ptr[RSTRING_LEN(opt)] = '\0';
 
 	if (*opts++ = strtok(opt_ptr, " \t")) {
 	    argc++;
@@ -70,16 +70,16 @@ rb_kakasi_kakasi(obj, opt, src)
     }
 
     dst = rb_str_new2("");
-    while (i < RSTRING(src)->len) {
-      if (*(RSTRING(src)->ptr + i) != '\0') {
-	buf = kakasi_do((RSTRING(src)->ptr + i));
+    while (i < RSTRING_LEN(src)) {
+      if (*(RSTRING_PTR(src) + i) != '\0') {
+	buf = kakasi_do((RSTRING_PTR(src) + i));
 	rb_str_concat(dst, rb_str_new2(buf));
 	if (*buf) free(buf);
-	while (*(RSTRING(src)->ptr + i) != '\0') {
+	while (*(RSTRING_PTR(src) + i) != '\0') {
 	  i++;
 	}
       }
-      if (i == RSTRING(src)->len) {
+      if (i == RSTRING_LEN(src)) {
 	break;
       }
       rb_str_concat(dst, rb_str_new("\0", 1));
